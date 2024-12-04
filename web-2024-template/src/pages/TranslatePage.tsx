@@ -1,6 +1,27 @@
-import { useState } from 'react';
-import { TextField, Button, Typography, Container, Box, Select, MenuItem } from '@mui/material';
-import { translateText } from '../services/translationService';
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Container,
+  AppBar,
+  Toolbar,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Select,
+  MenuItem,
+  Grid, 
+  Paper
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import SettingsIcon from "@mui/icons-material/Settings";
+import StarIcon from "@mui/icons-material/Star";
+import { translateText } from "../services/translationService";
+
 
 // Comprehensive list of languages with their codes
 const languages = [
@@ -72,10 +93,15 @@ const languages = [
   // Add more languages as needed
 ];
 
-const TranslatePage = () => {
-  const [inputText, setInputText] = useState('');
-  const [translatedText, setTranslatedText] = useState('');
-  const [targetLanguage, setTargetLanguage] = useState('es'); // Default to Spanish
+const TranslatePage = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
+  const [menuOpen, setMenuOpen] = useState(true);
+  const [inputText, setInputText] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
+  const [targetLanguage, setTargetLanguage] = useState("es");
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
   const handleTranslate = async () => {
     const translation = await translateText(inputText, targetLanguage);
@@ -83,44 +109,158 @@ const TranslatePage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Translate Text
-        </Typography>
-        <TextField
-          fullWidth
-          label="Text to Translate"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          multiline
-          rows={4}
-          variant="outlined"
-          sx={{ mb: 2 }}
-        />
-        <Select
-          fullWidth
-          value={targetLanguage}
-          onChange={(e) => setTargetLanguage(e.target.value)}
-          variant="outlined"
-          sx={{ mb: 2 }}
+    <Box display="flex">
+      {/* Sidebar */}
+      {menuOpen && (
+        <Box
+          sx={{
+            width: 250,
+            bgcolor: "#FDF1F1",
+            p: 2,
+            height: "100vh",
+            boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
+          }}
         >
-          {languages.map((lang) => (
-            <MenuItem key={lang.code} value={lang.code}>
-              {lang.name}
-            </MenuItem>
-          ))}
-        </Select>
-        <Button variant="contained" color="primary" onClick={handleTranslate}>
-          Translate
-        </Button>
-        {translatedText && (
-          <Typography variant="h6" component="p" sx={{ mt: 2 }}>
-            Translated Text: {translatedText}
-          </Typography>
-        )}
+          <List>
+            {[
+              { text: "Home", page: "home" },
+              { text: "Conversion Tool", page: "conversion" },
+              { text: "Translator", page: "translate" },
+              { text: "Expense Tracker", page: "expense-tracker" },
+              { text: "Extracurriculars", page: "extracurriculars" },
+              { text: "Cultural Recs", page: "cultural-recs" },
+            ].map((item, index) => (
+              <ListItem
+                key={index}
+                onClick={() => onNavigate(item.page)}
+                sx={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                <StarIcon sx={{ color: "#F3B8B8", marginRight: 1 }} />
+                <ListItemText primary={item.text} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      )}
+
+      {/* Main Content */}
+      <Box flexGrow={1}>
+        {/* Header */}
+        <AppBar
+          position="static"
+          sx={{
+            backgroundColor: "#F7BFBF",
+            height: 80,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleMenu}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Tourist Converter
+            </Typography>
+            <IconButton color="inherit">
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton color="inherit">
+              <SettingsIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {/* Translate Functionality */}
+        <Container maxWidth="lg" sx={{ py: 3 }}>
+          <Box sx={{ my: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Translate Text
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Text to Translate"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                />
+                <Select
+                  fullWidth
+                  value={targetLanguage}
+                  onChange={(e) => setTargetLanguage(e.target.value)}
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                >
+                  {languages.map((lang) => (
+                    <MenuItem key={lang.code} value={lang.code}>
+                      {lang.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleTranslate}
+                  fullWidth
+                >
+                  Translate
+                </Button>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    p: 2,
+                    height: "100%",
+                    minHeight: "150px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#f5f5f5",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{ textAlign: "center", color: "#333" }}
+                  >
+                    {translatedText || "Translation will appear here..."}
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Box>
+        </Container>
+
+        {/* Translation Image */}
+        <Container maxWidth="md" sx={{ textAlign: "center", mt: 5 }}>
+          <img
+            src="./images/Translation.jpg"
+            alt="Translation"
+            style={{
+              width: "100%",
+              maxWidth: "600px",
+              borderRadius: "8px",
+              boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+            }}
+          />
+        </Container>
       </Box>
-    </Container>
+    </Box>
   );
 };
 
